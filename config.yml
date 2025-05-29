@@ -1,0 +1,19 @@
+server:
+  port: "3000"
+
+db:
+  host: "localhost"
+  user: "root"
+  password: "root"
+  database: "zhuanz_java"
+
+ai:
+  moonshot:
+    baseURL: "https://api.moonshot.cn/v1"
+    api_key: "sk-xxxxxxxx"
+    model: "moonshot-v1-32k"
+  deepseek:
+    baseURL: "https://api.deepseek.com"
+    api_key: "sk-xxxxxxxx"
+    model: "deepseek-chat"
+    supportModels: "deepseek-chat,deepseek-reasoner"

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>SSE Stream</title>
+</head>
+
+<body>
+  <div>
+    <label for="messageInput">Enter your message:</label>
+    <input type="text" id="messageInput" />
+    <button id="sendButton">Send</button>
+  </div>
+  <div id="output"></div>
+  <script>
+    const outputDiv = document.getElementById('output');
+    const messageInput = document.getElementById('messageInput');
+    const sendButton = document.getElementById('sendButton');
+
+    // Generate a random source_id
+    const sourceId = Math.random().toString(36).substring(2, 15);
+
+    let socket;
+
+    // 初始化 WebSocket 连接
+    function initWebSocket() {
+        socket = new WebSocket('ws://192.168.168.175:30003/api/front/together_ai_assistant/chat');
+
+        socket.onopen = () => {
+            console.log('WebSocket connection established.');
+            outputDiv.textContent += '\n[WebSocket connection established]\n';
+        };
+
+        socket.onmessage = (event) => {
+            console.log('Received:', event.data);
+            outputDiv.textContent += event.data; // 显示接收到的消息
+        };
+
+        socket.onerror = (error) => {
+            console.error('WebSocket error:', error);
+            outputDiv.textContent += '\n[Error: WebSocket connection error]\n';
+        };
+
+        socket.onclose = () => {
+            console.log('WebSocket connection closed.');
+            outputDiv.textContent += '\n[WebSocket connection closed]\n';
+        };
+    }
+
+    // 发送消息
+    sendButton.addEventListener('click', () => {
+        const message = messageInput.value;
+        if (!message) {
+            outputDiv.textContent += '\n[Error: Message cannot be empty]\n';
+            return;
+        }
+
+        // 如果 WebSocket 未连接或已关闭，重新初始化连接
+        if (!socket || socket.readyState === WebSocket.CLOSED) {
+            outputDiv.textContent += '\n[Reinitializing WebSocket connection...]\n';
+            initWebSocket();
+        }
+
+        // 等待 WebSocket 连接打开后发送消息
+        const waitForSocketOpen = () => {
+            if (socket.readyState === WebSocket.OPEN) {
+                const request = {
+                    source_platform: 'example',
+                    source_id: sourceId,
+                    message: message,
+                };
+                socket.send(JSON.stringify(request));
+                console.log('Sent:', request);
+                outputDiv.textContent += '\n[Message sent]\n';
+            } else {
+                setTimeout(waitForSocketOpen, 100); // 每 100ms 检查一次连接状态
+            }
+        };
+
+        waitForSocketOpen();
+    });
+
+    // 初始化 WebSocket 连接
+    initWebSocket();
+</script>
+</body>
+
+</html>
