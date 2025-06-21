@@ -61,20 +61,20 @@ func MessageBuildZZ(chat *models.Chat) error {
 3.我们平台有以下职业的注册人员, %s
 4.输出内容分两部分,一先输出文本思考过程(不要markdown),二输出json数据,用符号⸻隔开这两部分,不要输出json数据标头,json样例
 {
-    jobs:[
-    {jobname:"职位名称(匹配我们平台的职业名称)",
-    jobrequire:"职位要求",
-    jobmarketprice:{
-    pricemode:"报酬模式,0:直接报酬,1:每件商品收益比例分红,2:每件商品收益固定分红,10:每件商品收益比例分红+直接报酬,20:每件商品收益固定分红+直接报酬,21:每件商品收益比例分红+每件商品收益固定分红;210:三种报酬方式都有",
-    directprice:"直接报酬",
-    salerateprice:"每件商品收益比例分红",
-    salefixprice:"每件商品收益固定分红"
+    "jobs":[
+    {"jobname":"职位名称(匹配我们平台的职业名称)",
+    "jobrequire":"职位要求",
+    "jobmarketprice":{
+    "pricemode":"报酬模式,0:直接报酬,1:每件商品收益比例分红,2:每件商品收益固定分红,10:每件商品收益比例分红+直接报酬,20:每件商品收益固定分红+直接报酬,21:每件商品收益比例分红+每件商品收益固定分红;210:三种报酬方式都有",
+    "directprice":"直接报酬",
+    "salerateprice":"每件商品收益比例分红",
+    "salefixprice":"每件商品收益固定分红"
     },
-    workers:"建议人数/合作机构数量"
+    "workers":"建议人数/合作机构数量"
     }],
-    title:"动态地根据对话内容生成合适的标题",
-    desc:"动态地根据对话内容生成合适的描述",
-    topic_tags:["动态地根据对话内容生成合适的话题标签一行一个"]
+    "title":"动态地根据对话内容生成合适的标题",
+    "desc":"动态地根据对话内容生成合适的描述",
+    "topic_tags":["动态地根据对话内容生成合适的话题标签一行一个"]
 }`
 
 		initMessage = fmt.Sprintf(initMessage, strings.Join(jobs, ","))

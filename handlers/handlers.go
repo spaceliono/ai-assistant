@@ -1,7 +1,9 @@
 package handlers
 
 import (
+	"context"
 	"encoding/json"
+	"io"
 	"log"
 	"net/http"
 	"sync"
@@ -30,7 +32,37 @@ func HandleZZ(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "WebSocket 升级失败", http.StatusInternalServerError)
 		return
 	}
-	defer conn.Close()
+	defer func() {
+		log.Println("Closing WebSocket connection")
+		conn.Close()
+	}()
+
+	// 创建上下文，用于监听连接关闭
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	// 启动一个 goroutine 监听连接关闭
+	go func() {
+		for {
+			_, msg, err := conn.NextReader()
+			if err != nil {
+				log.Println("WebSocket 连接关闭:", err)
+				cancel() // 取消上下文，通知主处理逻辑终止
+				return
+			}
+			msgContent, readErr := io.ReadAll(msg)
+			if readErr != nil {
+				log.Println("读取消息内容失败:", readErr)
+				cancel() // 取消上下文，通知主处理逻辑终止
+				return
+			}
+			if string(msgContent) == "ABORT_ANSWER" {
+				log.Println("收到消息 'ABORT_ANSWER', 终止处理")
+				cancel() // 取消上下文，通知主处理逻辑终止
+				return
+			}
+		}
+	}()
 
 	// 读取请求体
 	var raw models.UserRequest
@@ -63,19 +95,25 @@ func HandleZZ(w http.ResponseWriter, r *http.Request) {
 
 	// 调用 AI 流式接口
 	stream := ai.CallAI(chat)
+	defer stream.Close()
 	content := ""
-
 	// 将流式数据逐块通过 WebSocket 发送到前端
 	for stream.Next() {
-		chunk := stream.Current()
-		if len(chunk.Choices) > 0 {
-			message := chunk.Choices[0].Delta.Content
-			err := conn.WriteMessage(websocket.TextMessage, []byte(message))
-			if err != nil {
-				log.Println("WebSocket 写入失败:", err)
-				return
+		select {
+		case <-ctx.Done(): // 如果连接关闭，终止处理
+			log.Println("处理终止，因为 WebSocket 连接已关闭")
+			return
+		default:
+			chunk := stream.Current()
+			if len(chunk.Choices) > 0 {
+				message := chunk.Choices[0].Delta.Content
+				err := conn.WriteMessage(websocket.TextMessage, []byte(message))
+				if err != nil {
+					log.Println("WebSocket 写入失败:", err)
+					return
+				}
+				content += message
 			}
-			content += message
 		}
 	}
 

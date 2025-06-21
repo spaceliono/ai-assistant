@@ -12,7 +12,7 @@ import (
 
 func init() {
 	// 捕获标准输出
-	logFile, err := os.OpenFile("debug.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	logFile, err := os.OpenFile("app.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 	if err != nil {
 		log.Fatalln("无法创建日志文件:", err)
 	}
@@ -34,5 +34,8 @@ func main() {
 
 	http.HandleFunc("/api/front/together_ai_assistant/chat", handlers.HandleZZ)
 	http.HandleFunc("/ai", handlers.HandleAI)
-	http.ListenAndServe(":30003", nil)
+	err = http.ListenAndServe(":30003", nil)
+	if err != nil {
+		log.Fatalf("Failed to start server: %v", err)
+	}
 }

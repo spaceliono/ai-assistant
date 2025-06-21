@@ -23,7 +23,6 @@ A Go implementation of the Together AI Assistant service.
 ## API Endpoints
 
 - `POST /api/front/together_ai_assistant/chat` - Chat endpoint
-- `GET /` - Index page
 
 ## Configuration
 

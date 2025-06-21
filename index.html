@@ -10,12 +10,14 @@
     <label for="messageInput">Enter your message:</label>
     <input type="text" id="messageInput" />
     <button id="sendButton">Send</button>
+    <button id="closeButton">Close WebSocket</button>
   </div>
   <div id="output"></div>
   <script>
     const outputDiv = document.getElementById('output');
     const messageInput = document.getElementById('messageInput');
     const sendButton = document.getElementById('sendButton');
+    const closeButton = document.getElementById('closeButton');
 
     // Generate a random source_id
     const sourceId = Math.random().toString(36).substring(2, 15);
@@ -24,6 +26,7 @@
 
     // 初始化 WebSocket 连接
     function initWebSocket() {
+        //socket = new WebSocket('wss://apif.zhuanart.com/api/front/together_ai_assistant/chat');
         socket = new WebSocket('ws://192.168.168.175:30003/api/front/together_ai_assistant/chat');
 
         socket.onopen = () => {
@@ -78,6 +81,16 @@
         };
 
         waitForSocketOpen();
+    });
+
+    // 关闭 WebSocket 连接
+    closeButton.addEventListener('click', () => {
+        if (socket && socket.readyState === WebSocket.OPEN) {
+            socket.close();
+            outputDiv.textContent += '\n[WebSocket connection manually closed]\n';
+        } else {
+            outputDiv.textContent += '\n[Error: WebSocket is not open]\n';
+        }
     });
 
     // 初始化 WebSocket 连接
