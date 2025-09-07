@@ -33,3 +33,11 @@ Edit `config.yml` to configure:
 ## License
 
 MIT 
+
+## Documentation
+
+Comprehensive docs are available in the `docs/` folder:
+
+- Overview and navigation: `docs/index.md`
+- Endpoints: `docs/endpoints.md`
+- Packages: `docs/ai.md`, `docs/handlers.md`, `docs/database.md`, `docs/config.md`, `docs/models.md`
